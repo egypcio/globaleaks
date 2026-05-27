@@ -154,7 +154,9 @@ export class AuthenticationService {
             }
 
             if (this.session.role === "whistleblower") {
-              if (password || this.session.properties.operator_session) {
+              if (this.session.properties.operator_session) {
+                this.router.navigate(['/']);
+              } else if (password) {
                 this.titleService.setPage("tippage");
                 this.router.navigate(['/']);
               }

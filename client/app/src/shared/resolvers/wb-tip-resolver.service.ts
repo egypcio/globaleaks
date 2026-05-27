@@ -26,7 +26,7 @@ export class WbTipResolver {
 
   resolve(): Observable<boolean> {
 
-    if (!this.dataModel && this.authenticationService.session && this.authenticationService.session.role === "whistleblower") {
+    if (!this.dataModel && this.authenticationService.session && this.authenticationService.session.role === "whistleblower" && !this.authenticationService.session.properties.operator_session) {
       return this.httpService.whistleBlowerTip().pipe(
         map((response: WbTipData) => {
           this.dataModel = response;
