@@ -487,3 +487,13 @@ System resources like submissions and files are identified by UUIDv4 to make the
 TLS for smtp notification
 -------------------------
 All notifications are sent through an SMTP channel encrypted with TLS, using either SMTP/TLS or SMTPS, depending on the configuration.
+
+Voice anonymization
+-------------------
+Whistleblowers can attach voice messages to their reports. To prevent a recording's acoustic fingerprint from exposing the source, the application anonymizes the speaker's voice entirely on the client and in real time: the microphone signal is processed in the browser through the `Web Audio API <https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API>`__ and only the transformed audio is ever recorded or uploaded, so the original voice never leaves the whistleblower's device.
+
+The transformation is a classic analysis-and-synthesis `channel vocoder <https://en.wikipedia.org/wiki/Vocoder>`__ (Dudley, 1939): the signal is split into log-spaced constant-Q frequency bands, the slow amplitude envelope of each band is extracted, and that envelope drives an independent fixed-frequency carrier (a sine in the speech range, band-limited noise in the fricative range). Re-synthesizing speech from the band envelopes alone discards the fundamental frequency (pitch) and the glottal excitation rather than merely warping them, which is what makes the operation largely one-way. The formants are further disguised by a fixed bilinear frequency warp (Smith & Abel, 1999); this is only a secondary measure, since the anonymity comes from discarding the pitch and excitation rather than from relocating the formants.
+
+This information-destroying design is intentionally stronger than reversible formant-only techniques such as the McAdams-coefficient transform (Patino et al., 2021), which preserve the excitation residual and therefore leak pitch and prosody. The method and its evaluation context follow the framing of the `VoicePrivacy Challenge <https://arxiv.org/abs/2404.02677>`__ (Tomashenko et al., 2024), the community reference benchmark for speaker anonymization.
+
+This is best-effort signal-processing anonymization, intended to raise the bar rather than to guarantee unlinkability. It is effective against human recognition and naive automatic speaker verification, but, like the VoicePrivacy McAdams baseline (system B2), it offers only moderate protection against a strong, informed adversary. The near-uniform formant warp can be partly undone by vocal-tract-length normalization, and speaking rate, rhythm and other prosodic habits still carry identity. Stronger neural approaches (x-vector resynthesis or ASR-to-TTS pipelines) are not currently feasible in real time in the browser.
