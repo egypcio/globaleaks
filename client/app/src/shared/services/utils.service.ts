@@ -786,6 +786,11 @@ export class UtilsService {
       simultaneousUploads: 1,
       testChunks: false,
       permanentErrors:[500, 501],
+      // Retry chunks that fail at the transport level (e.g. a chunk lost to an idle
+      // HTTP/2 connection the server closed after its 60s timeout, or a mobile network
+      // blip). The backend writes each chunk at most once, so a re-sent chunk is safe.
+      maxChunkRetries: 5,
+      chunkRetryInterval: 2000,
       speedSmoothingFactor:0.01,
       allowDuplicateUploads:false,
       singleFile:false,
